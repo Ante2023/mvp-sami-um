@@ -1,0 +1,98 @@
+{
+  "name": "mvp-sami-alert-http",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0778KPKGCF",
+          "mode": "list",
+          "cachedResultName": "docker"
+        },
+        "text": "=Alarma:\nNombre: {{ $json.alertname }}\nFecha: {{ $json.fechaAlerta }}\nDescripción:{{ $json.description }}\nResumen: {{ $json.sumary }}",
+        "otherOptions": {}
+      },
+      "id": "e6816f12-6490-4efa-b632-54d7f47d0a5e",
+      "name": "alerta-http",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [
+        520,
+        260
+      ],
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "fJZZ9oyl4O5j0Dxn",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const{annotations:{description,sumary},labels:{alertname},startsAt} =$input.all()[0].json.body.alerts[0]\n// console.log($input.all()[0].json.body.alerts[0])\nconst fecha = new Date(startsAt);\n\n// Opciones para personalizar la salida\nconst opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };\nconst opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };\n\n// Convertir a formato español\nconst fechaEspanol = fecha.toLocaleDateString('es-ES', opcionesFecha);\nconst horaEspanol = fecha.toLocaleTimeString('es-ES', opcionesHora);\n\n// Fecha formateada\nconst fechaAlerta = `${fechaEspanol}; ${horaEspanol}`;\n\nreturn {description,sumary,alertname,fechaAlerta}\n\n\n\n\n\n\n\n// // Loop over input items and add a new field called 'myNewField' to the JSON of each one\n// for (const item of $input.all()) {\n//   item.json.myNewField = 1;\n// }\n\n// return $input.all();"
+      },
+      "id": "985b485d-b6fd-46d7-8818-b4a3229f953d",
+      "name": "Mensaje-http",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -120,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "alert-flask-http",
+        "options": {}
+      },
+      "id": "f1812a5d-b528-456d-b3ab-15261d459ab2",
+      "name": "alert-flask-http",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -780,
+        260
+      ],
+      "webhookId": "a0a3901c-35e6-4301-ad09-973e7483dc19"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Mensaje-http": {
+      "main": [
+        [
+          {
+            "node": "alerta-http",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "alert-flask-http": {
+      "main": [
+        [
+          {
+            "node": "Mensaje-http",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5d065b7c-2eb2-4f82-bf6d-c47be68ec968",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b609867d23022c854ab5479e3e1f32cec62ff29224a27c6c7981e76aed0baa71"
+  },
+  "id": "5CGtAj7zOm2upg1R",
+  "tags": []
+}

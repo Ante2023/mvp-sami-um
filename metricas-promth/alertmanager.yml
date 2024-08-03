@@ -1,0 +1,35 @@
+global:
+  resolve_timeout: 2m
+
+  http_config:
+    tls_config:
+      insecure_skip_verify: true
+
+route:
+  group_by: ["alertname"]
+  group_wait: 30s
+  group_interval: 2m 
+  repeat_interval: 3h
+
+  receiver: "default-receiver"
+
+  routes:
+    - match:
+        monitoring_group: "service-up"
+      receiver: "service-up-webhook"
+    - match:
+        monitoring_group: "http-request-endpoint"
+      receiver: "http-request-endpoint-webhook"
+
+receivers:
+  - name: "service-up-webhook"
+    webhook_configs:
+      - url: "https://n8n.sami.com/webhook-test/alert-flask-up"
+
+  - name: "http-request-endpoint-webhook"
+    webhook_configs:
+      - url: "https://n8n.sami.com/webhook-test/alert-flask-http"
+
+  - name: "default-receiver"
+    webhook_configs:
+      - url: "https://n8n.sami.com/webhook-test/alert-default"

@@ -1,0 +1,98 @@
+{
+  "name": "mvp-sami-alert-up",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const{startsAt,annotations:{description,sumary},labels:{alertname}}=$input.all()[0].json.body.alerts[0]\n\n\nconst fecha = new Date(startsAt);\n\n\n// Opciones para personalizar la salida\nconst opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };\nconst opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };\n\n// Convertir a formato español\nconst fechaEspanol = fecha.toLocaleDateString('es-ES', opcionesFecha);\nconst horaEspanol = fecha.toLocaleTimeString('es-ES', opcionesHora);\n\n// Combinar todo en una sola cadena\nconst fechaAlerta = `${fechaEspanol}; ${horaEspanol}`;\nmsg_slack = {alertname, fechaAlerta,description,sumary}\nreturn msg_slack;\n\n\n\n"
+      },
+      "id": "9b12f38f-3b7f-49f7-8f66-dff59ac30337",
+      "name": "Mensaje-up",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -180,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "U06G806F8BT",
+          "mode": "list",
+          "cachedResultName": "dent007"
+        },
+        "text": "=Alarma:\nNombre: {{ $json.alertname }}\nFecha: {{ $json.fechaAlerta }}\nDescripción:{{ $json.description }}\nResumen: {{ $json.sumary }}",
+        "otherOptions": {}
+      },
+      "id": "a6945860-6efa-438e-979e-efa670b7fe52",
+      "name": "alerta-up",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [
+        520,
+        520
+      ],
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "fJZZ9oyl4O5j0Dxn",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "alert-flask-up",
+        "options": {}
+      },
+      "id": "03e049c7-5814-49a9-946d-cee828dcfae1",
+      "name": "alert-flask-up",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -780,
+        520
+      ],
+      "webhookId": "51d6e818-cc20-4511-8641-aadfab9bb97d"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Mensaje-up": {
+      "main": [
+        [
+          {
+            "node": "alerta-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "alert-flask-up": {
+      "main": [
+        [
+          {
+            "node": "Mensaje-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "82df3a6f-a1ca-4902-884f-8823db6a6ec3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b609867d23022c854ab5479e3e1f32cec62ff29224a27c6c7981e76aed0baa71"
+  },
+  "id": "6tzxOq4v1lRPwWG7",
+  "tags": []
+}

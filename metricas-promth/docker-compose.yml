@@ -1,0 +1,64 @@
+volumes:
+  metrics-prometheus:
+  dashboards-grafana:
+
+services:
+
+  container_cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cont-cadvisor
+    restart: unless-stopped
+    expose:
+      - 8080
+    networks:
+      - net-sami
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+
+  container_flaskapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cont-flaskapp
+    restart: unless-stopped
+    ports:
+      - 5000:5000
+    networks:
+      - net-sami
+
+  container_prometheus:
+    image: prom/prometheus:latest
+    container_name: cont_prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - metrics-prometheus:/prometheus
+
+      - ./rules.yml:/etc/prometheus/rules.yml
+
+    ports:
+      - 9090:9090
+    networks:
+      - net-sami
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=1y"
+      - "--web.enable-lifecycle"
+
+  alert_manager:
+    image: prom/alertmanager
+    container_name: cont_alertmanager
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    networks:
+      - net-sami
+    ports:
+      - 9093:9093
+
+networks:
+  net-sami:
+    external: true

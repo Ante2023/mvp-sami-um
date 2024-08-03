@@ -1,0 +1,374 @@
+{
+  "name": "mvp-sami-reporte",
+  "nodes": [
+    {
+      "parameters": {
+        "sendTo": "appsoftest@gmail.com",
+        "subject": "=Monitoreo servidor Flask",
+        "message": "=<h3>Reporte periódico de métricas de contenedor ejecutando servicio Flask </h3>\n<p>Se reportan estados máximo y mínimo de uso de CPU y Memoria por el contenedor</p>\n<ol>\n  <li>Datos de uso de Memoria durante [PERIODO]</li>\n  <li>Valor de máximo uso de Memoria alcanzado : <strong>{{ $json[\"valorMaxMem\"] }} </strong></li>\n  <li>Fecha de ocurrecnia :<strong>{{ $json[\"fechaMaxMem\"] }}</strong></li>\n  <li>Valor de minimo uso de Memoria alcanzado :<strong>{{ $json[\"valorMinMem\"] }}  </strong> </li>\n  <li>Fecha de ocurrecnia : <strong>{{ $json[\"fechaMinMem\"] }} </strong> </li>\n</ol>\n <ol>\n  <li>Datos de uso de CPU durante [PERIODO]</li>\n  <li>Valor de máximo uso de CPU alcanzado : <strong>{{ $json[\"valorMaxCpu\"] }} </strong></li>\n  <li>Fecha de ocurrecnia : <strong>{{ $json[\"fechaMaxCpu\"] }}</strong></li>\n  <li>Valor de minimo uso de CPU alcanzado : <strong> {{ $json[\"valorMinCpu\"] }} </strong></li>\n  <li>Fecha de ocurrecnia : <strong>{{ $json[\"fechaMinCpu\"] }} </strong></li>\n</ol>\n\n\n",
+        "options": {}
+      },
+      "id": "68ffaec5-0634-47db-8af8-c23d2bb8719c",
+      "name": "email-app",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1180,
+        1240
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "MHWEvKQ7zTFnB0tm",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 120
+            },
+            {}
+          ]
+        }
+      },
+      "id": "5a1a3d4c-7fda-4195-8602-4a95ce445887",
+      "name": "pull-info-flask-container",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -900,
+        1220
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://172.18.0.2:9090/api/v1/query?query=max_over_time(container_memory_usage_bytes{application=\"container-contain\", id=\"/docker/507fa9933e8fc0be7730bd180a83881f2b106288a904c71f5e25ab47f9e19d67\"}[24h])",
+        "options": {}
+      },
+      "id": "7075db12-4067-416d-82b5-f9413ea0ef18",
+      "name": "max-mem-container",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -340,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://172.18.0.2:9090/api/v1/query?query=min_over_time(container_memory_usage_bytes{application=\"container-contain\", id=\"/docker/507fa9933e8fc0be7730bd180a83881f2b106288a904c71f5e25ab47f9e19d67\"}[6h])",
+        "options": {}
+      },
+      "id": "b75994a6-feb3-4123-a378-38dcaf199446",
+      "name": "min-mem-container",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -360,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const [hora, valor]=$input.all()[0].json.data.result[0].value\n\n// Convierte el hora a un entero (en segundos)\nconst segundos = Math.floor(hora);\n\n// Crea un nuevo objeto Date utilizando segundos en milisegundos\n    const fecha = new Date(segundos * 1000);\n\n// Opciones para personalizar la salida\nconst opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };\nconst opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };\n\n// Convertir a formato español\nconst fechaEspanol = fecha.toLocaleDateString('es-ES', opcionesFecha);\nconst horaEspanol = fecha.toLocaleTimeString('es-ES', opcionesHora);\n\n\n\n\n\n\n// Fecha formateada\nconst fechaMaxMem = `${fechaEspanol}; ${horaEspanol}`;\n\nconsole.log(fechaEspanol)\n\nreturn {fechaMaxMem,\"valorMaxMem\":valor};"
+      },
+      "id": "49b60bcf-6946-4069-b2de-59bcebac4417",
+      "name": "msg_max_mem",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -100,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const [hora, valor]=$input.all()[0].json.data.result[0].value\n// console.log($input.all())\n// Convierte el hora a un entero (en segundos)\nconst segundos = Math.floor(hora);\n\n// Crea un nuevo objeto Date utilizando segundos en milisegundos\n    const fecha = new Date(segundos * 1000);\n\n// Opciones para personalizar la salida\nconst opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };\nconst opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };\n\n// Convertir a formato español\nconst fechaEspanol = fecha.toLocaleDateString('es-ES', opcionesFecha);\nconst horaEspanol = fecha.toLocaleTimeString('es-ES', opcionesHora);\n\n// Fecha formateada\nconst fechaMinMem = `${fechaEspanol}; ${horaEspanol}`;\n\n\nreturn {fechaMinMem,\"valorMinMem\":valor};"
+      },
+      "id": "08661dd4-fdf1-40f1-9a8a-294cd5119b49",
+      "name": "msg_min_mem",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://172.18.0.2:9090/api/v1/query?query=max_over_time(rate(container_cpu_usage_seconds_total{id='/docker/507fa9933e8fc0be7730bd180a83881f2b106288a904c71f5e25ab47f9e19d67'}[5m])[1d:1m])",
+        "options": {}
+      },
+      "id": "4777b045-60f2-48bb-8477-4aae31663ab5",
+      "name": "max_cpu_container",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -360,
+        1320
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://172.18.0.2:9090/api/v1/query?query=min_over_time(rate(container_cpu_usage_seconds_total{id='/docker/507fa9933e8fc0be7730bd180a83881f2b106288a904c71f5e25ab47f9e19d67'}[5m])[1d:1m])",
+        "options": {}
+      },
+      "id": "1d18f6a7-0122-47df-a4f3-4d54ddc69759",
+      "name": "min_cpu_container",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -360,
+        1520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const[hora, valor]= $input.all()[0].json.data.result[0].value\n\n// Convierte el hora a un entero (en segundos)\nconst segundos = Math.floor(hora);\n\n// Crea un nuevo objeto Date utilizando segundos en milisegundos\n    const fecha = new Date(segundos * 1000);\n\n// Opciones para personalizar la salida\nconst opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };\nconst opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };\n\n// Convertir a formato español\nconst fechaEspanol = fecha.toLocaleDateString('es-ES', opcionesFecha);\nconst horaEspanol = fecha.toLocaleTimeString('es-ES', opcionesHora);\n\n// Fecha formateada\nconst fechaMaxCpu = `${fechaEspanol}; ${horaEspanol}`;\n\n\nreturn {fechaMaxCpu,\"valorMaxCpu\":valor};"
+      },
+      "id": "5c171687-f134-487d-bbc8-2308f7bf7db7",
+      "name": "msg_max_cpu",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        1320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const[hora, valor]= $input.all()[0].json.data.result[0].value\n// Convierte el hora a un entero (en segundos)\nconst segundos = Math.floor(hora);\n\n// Crea un nuevo objeto Date utilizando segundos en milisegundos\n    const fecha = new Date(segundos * 1000);\n\n// Opciones para personalizar la salida\nconst opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };\nconst opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };\n\n// Convertir a formato español\nconst fechaEspanol = fecha.toLocaleDateString('es-ES', opcionesFecha);\nconst horaEspanol = fecha.toLocaleTimeString('es-ES', opcionesHora);\n\n// Fecha formateada\nconst fechaMinCpu = `${fechaEspanol}; ${horaEspanol}`;\n\n\nreturn {fechaMinCpu,\"valorMinCpu\":valor};\n"
+      },
+      "id": "d68a8bee-1786-4eaa-8b75-1fc587ed702d",
+      "name": "msg_min_cpu",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        1520
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "ef2d6207-fd5e-4bf8-93a3-b59f90d49365",
+      "name": "metricas_mem",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        260,
+        1020
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "acac486f-b6d6-4e7b-a6ec-4081279fa24f",
+      "name": "metricas_cpu",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        1420
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "13dc6728-123e-40ca-9be7-aec26ce820ce",
+      "name": "reporte",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        600,
+        1240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n// for (const item of $input.all()) {\n//   console.log(item.json)\n// }\n\nconst dat= $input.all().map(item=>item.json)\n// console.log(dat)\nconst{fechaMaxMem,valorMaxMem} = dat[0];\nconst{fechaMinMem,valorMinMem} = dat[1];\nconst{fechaMaxCpu,valorMaxCpu} = dat[2];\nconst{fechaMinCpu,valorMinCpu} = dat[3];\nfor (let i=0;i<dat.lenght;i++){\nconsole.log(dat[i])}\nconst sol = {\"fechaMaxMem\":fechaMaxMem,\"valorMaxMem\":valorMaxMem,\"fechaMinMem\":fechaMinMem,\"valorMinMem\":valorMinMem,\"fechaMaxCpu\":fechaMaxCpu,\"valorMaxCpu\":valorMaxCpu,\"fechaMinCpu\":fechaMinCpu,\"valorMinCpu\":valorMinCpu}\nreturn sol;"
+      },
+      "id": "74a26471-70ce-4b90-acf4-3872493ad821",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        1240
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "pull-info-flask-container": {
+      "main": [
+        [
+          {
+            "node": "max_cpu_container",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "min_cpu_container",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "max-mem-container",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "min-mem-container",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "max-mem-container": {
+      "main": [
+        [
+          {
+            "node": "msg_max_mem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "min-mem-container": {
+      "main": [
+        [
+          {
+            "node": "msg_min_mem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "msg_max_mem": {
+      "main": [
+        [
+          {
+            "node": "metricas_mem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "msg_min_mem": {
+      "main": [
+        [
+          {
+            "node": "metricas_mem",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "max_cpu_container": {
+      "main": [
+        [
+          {
+            "node": "msg_max_cpu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "min_cpu_container": {
+      "main": [
+        [
+          {
+            "node": "msg_min_cpu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "msg_max_cpu": {
+      "main": [
+        [
+          {
+            "node": "metricas_cpu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "msg_min_cpu": {
+      "main": [
+        [
+          {
+            "node": "metricas_cpu",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "metricas_mem": {
+      "main": [
+        [
+          {
+            "node": "reporte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "metricas_cpu": {
+      "main": [
+        [
+          {
+            "node": "reporte",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "reporte": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "email-app",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d06b5024-f802-48fc-ad99-d4f7d5fb9f02",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b609867d23022c854ab5479e3e1f32cec62ff29224a27c6c7981e76aed0baa71"
+  },
+  "id": "e7e6RFD5gJlqZeOl",
+  "tags": []
+}
