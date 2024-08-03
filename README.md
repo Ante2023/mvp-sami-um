@@ -35,10 +35,10 @@ En este proyecto se monitorean las métricas de rendimiento del uso de CPU y mem
     <span style="font-size: 13;">Workflow n8n para el envio de alerta por "servidor apagado", usando el servicio Slack</span>
   </p></br>
 
-<div style="text-align: center; max-width: 90% ; display:block; margin:auto">
+ <p align="center">
   <img src="./documentos/img-readme/alert_flaskapp_up.jpg" alt="Contenido de mensaje slack por alerta servidor apagado"/></br>
   <span style="font-size: 13;">Contenido de mensaje slack por alerta "servidor apagado"</span>
-  </div></br>
+  </p></br>
 
   <p align="center">
   <strong> - Resultado sobre el workflow de estado en ejecución del servidor</strong></br></br>
