@@ -36,18 +36,18 @@ En este proyecto se monitorean las métricas de rendimiento del uso de CPU y mem
   </p></br>
 
 <div style="text-align: center; max-width: 90% ; display:block; margin:auto">
-  <img src="./documentos/img-readme/alert_flaskapp_up.jpg" alt="Contenido de mensaje slack por alerta servidor apagado"/>
+  <img src="./documentos/img-readme/alert_flaskapp_up.jpg" alt="Contenido de mensaje slack por alerta servidor apagado"/></br>
   <span style="font-size: 13;">Contenido de mensaje slack por alerta "servidor apagado"</span>
   </div></br>
 
   <p align="center">
   <strong> - Resultado sobre el workflow de estado en ejecución del servidor</strong></br></br>
-  <img src="./documentos/img-readme/mvp-sami-alert-http.jpg" alt="Contenido de mensaje slack por alerta desobrecarga de solicitudes http"  />
+  <img src="./documentos/img-readme/mvp-sami-alert-http.jpg" alt="Contenido de mensaje slack por alerta desobrecarga de solicitudes http"  /></br>
   <span style="font-size: 13;">Workflow n8n para el envio de alerta por "sobrecarga de solicitudes http a endpoint", usando el servicio Slack</span>
   </p></br>
 
   <p align="center">
-  <img src="./documentos/img-readme/alert_flaskapp_request.jpg" alt="Contenido de mensaje slack por aumento de tasa de solicitudes http a endpoint"  />
+  <img src="./documentos/img-readme/alert_flaskapp_request.jpg" alt="Contenido de mensaje slack por aumento de tasa de solicitudes http a endpoint"  /></br>
   <span style="font-size: 13;">Contenido de mensaje slack por alerta de "aumento de tasa de solicitudes http" a endpoint monitoreado</span>
   </p></br>
 
