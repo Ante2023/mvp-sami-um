@@ -7,7 +7,7 @@ Este sistema realiza la extracción de métricas tanto del hardware, que abarca 
 
 <p align="center">
   <img src="./documentos/img-readme/modulos-SAMI.jpg" alt="Componetes del proyecto" style="max-width: 100%" /></br>
-  <span style="font-size: 13;">Componetes del proyecto SAMI</span>
+  <span style="font-size: 13;">Componetes del proyecto SAMITI</span>
   </p></br>
 
 ## Características:
