@@ -1,8 +1,8 @@
-<h1 align="center">Sistema Automatizado de Monitoreo de Infraestructuras: "S.A.M.I."</h1>
+<h1 align="center">Sistema Automatizado de Monitoreo de Infraestructuras T.I.: "S.A.M.I.T.I"</h1>
 
 ## SAMI:
 
-"S.A.M.I. es un **Sistema Automatizado de Monitoreo de Infraestructuras** diseñado para recopilar y analizar métricas en los componentes de una infraestructura informática. Su objetivo principal es mantener y optimizar el rendimiento y la operatividad del sistema.
+"S.A.M.I.T.I. es un **Sistema Automatizado de Monitoreo de Infraestructuras TI** diseñado para recopilar y analizar métricas en los componentes de una infraestructura informática. Su objetivo principal es mantener y optimizar el rendimiento y la operatividad del sistema.
 Este sistema realiza la extracción de métricas tanto del hardware, que abarca el uso de la CPU y memoria interna, como del software, a través de la interpretación de instrucciones del sistema operativo y las actividades de los usuarios."</br></br>
 
 <p align="center">
